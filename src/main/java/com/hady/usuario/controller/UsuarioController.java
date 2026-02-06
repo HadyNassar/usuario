@@ -18,8 +18,9 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
     private final AuthenticationManager authenticationManager;
     private final com.hady.usuario.infrastructure.security.JwtUtil jwtUtil;
+
     @PostMapping
-    public ResponseEntity<UsuarioDTO> salvaUsuario(@RequestBody UsuarioDTO usuarioDTO){
+    public ResponseEntity<UsuarioDTO> salvaUsuario(@RequestBody UsuarioDTO usuarioDTO) {
         return ResponseEntity.ok(usuarioService.salvaUsuario(usuarioDTO));
     }
 
@@ -44,6 +45,15 @@ public class UsuarioController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping
+    public ResponseEntity<UsuarioDTO> atualizaDadoUsuario(@RequestBody UsuarioDTO dto,
+                                                          @RequestHeader("Authorization")
+                                                          String token) {
+        return ResponseEntity.ok(usuarioService.atualizaDadosUsuario(token , dto));
+
+    }
 
 
 }
+
+

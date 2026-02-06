@@ -17,6 +17,8 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
+    private final com.hady.usuario.infrastructure.security.JwtUtil jwtUtil;
+
 
     public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO){
         emailExiste(usuarioDTO.getEmail());
@@ -48,6 +50,30 @@ public class UsuarioService {
     }
     public void deletaUsuarioPorEmail(String email){
         usuarioRepository.deleteByEmail((email));
+
+    }
+
+    public UsuarioDTO atualizaDadosUsuario(String token ,UsuarioDTO dto){
+
+
+        //busca email atravez do token (para tirar a obrigatoriedade do email no update)
+       String email = jwtUtil.extractUsername(token.substring(7));
+
+       //Criptografa a senha
+       dto.setSenha(dto.getSenha() != null ? passwordEncoder.encode(dto.getSenha()): null);
+
+       // busca os dados do usuario no banco de dados
+       Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(() ->
+               new ResourceNotFoundException("Email não localizado"));
+
+
+       //Mescla os dados que recebemos na requisicao do DTO com o banco de dados
+       Usuario usuario = usuarioConverter.updateUsuario(dto,usuarioEntity);
+
+
+
+       //salva os dados do usuario convertido , pega o retorno e converte em usuarioDTO
+       return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
 
     }
 
